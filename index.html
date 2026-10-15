@@ -1,0 +1,160 @@
+<!doctype html>
+<!--
+  Spot the Secret: steganography awareness game
+  Developed by Thilina Mendis
+  Date: October 15, 2026
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="author" content="Thilina Mendis">
+<title>Spot the Secret</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Game HUD: only shown once a game has started -->
+<header class="hud" id="hud" hidden>
+  <button class="hud-logo" id="homeBtn" type="button" aria-label="Back to the title screen">Spot the Secret</button>
+  <ol class="pips" id="pips" aria-label="Level progress"></ol>
+  <div class="hud-stats">
+    <div class="stat"><span class="stat-k">Score</span><span class="stat-v" id="hudScore">0</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- Title screen -->
+  <section id="screenTitle" class="screen">
+    <div class="title-wrap">
+      <div class="title-text">
+        <p class="kicker">An interactive steganography experiment</p>
+        <h1 class="logo">Spot the Secret</h1>
+        <p class="tagline">Two copies of the same photo, one with a message hidden in its pixels. Find it, then see how it was done.</p>
+        <ol class="howto">
+          <li><b>Look.</b> Compare the two photos with the zoom scope.</li>
+          <li><b>Pick.</b> Choose the photo you think hides something.</li>
+          <li><b>Investigate.</b> Analyse the pixels and learn the method.</li>
+        </ol>
+        <div class="actions">
+          <button class="btn btn-go" id="startBtn" type="button">Start game</button>
+          <button class="btn btn-ghost" id="labBtn" type="button">Hiding Lab</button>
+        </div>
+        <p class="status" id="loadStatus" role="status"></p>
+      </div>
+      <div class="title-art" aria-hidden="true">
+        <div class="art-card a"><img src="levels/level_09/cover.jpg" alt=""><span>A</span></div>
+        <div class="art-card b"><img src="levels/level_09/stego.jpg" alt=""><span>B</span></div>
+        <div class="art-q">Which one hides a secret?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Play -->
+  <section id="screenPlay" class="screen" hidden>
+    <div class="level-bar">
+      <div>
+        <p class="level-num" id="levelNum"></p>
+        <h2 class="level-title" id="levelTitle" tabindex="-1"></h2>
+      </div>
+      <div class="difficulty" id="difficulty" aria-label="Difficulty"></div>
+    </div>
+    <p class="prompt" id="prompt">One of these photos hides a secret. Which one?</p>
+
+    <div class="arena" id="arena">
+      <figure class="pane" data-side="A">
+        <div class="frame">
+          <canvas class="photo" width="768" height="512"></canvas>
+          <canvas class="loupe" width="320" height="320" aria-hidden="true"></canvas>
+          <div class="stamp" aria-hidden="true"></div>
+          <span class="corner-tag">A</span>
+        </div>
+        <button class="pick" data-pick="A" type="button"><span class="pick-key">A</span>Photo A hides the secret</button>
+      </figure>
+      <figure class="pane" data-side="B">
+        <div class="frame">
+          <canvas class="photo" width="768" height="512"></canvas>
+          <canvas class="loupe" width="320" height="320" aria-hidden="true"></canvas>
+          <div class="stamp" aria-hidden="true"></div>
+          <span class="corner-tag">B</span>
+        </div>
+        <button class="pick" data-pick="B" type="button"><span class="pick-key">B</span>Photo B hides the secret</button>
+      </figure>
+    </div>
+    <div class="arena-tools">
+      <button class="btn btn-ghost btn-small" id="magnifierBtn" type="button" aria-pressed="true">Scope on</button>
+      <span class="hint" id="magHint"></span>
+    </div>
+
+    <div id="reveal" hidden>
+      <div class="result" id="result" role="status" aria-live="polite">
+        <p class="result-head" id="resultHead"></p>
+        <p class="result-sub" id="resultSub"></p>
+      </div>
+
+      <div class="brief">
+        <p class="brief-method" id="method"></p>
+        <p class="brief-text" id="explain"></p>
+        <p class="brief-simple" id="simple"></p>
+        <button class="btn btn-ghost btn-small" id="toLabBtn" type="button">See how it's done, step by step</button>
+      </div>
+
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="tool" id="tool" role="tabpanel"></div>
+
+      <div class="actions end">
+        <button class="btn btn-go" id="nextBtn" type="button">Next level</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- End -->
+  <section id="screenEnd" class="screen" hidden>
+    <p class="level-num">Game over</p>
+    <h2 class="end-title" id="endTitle"></h2>
+    <p class="rank" id="endRank"></p>
+    <ol class="result-row" id="resultRow"></ol>
+    <p class="brief-text" id="endText"></p>
+    <p class="brief-text" id="endNote"></p>
+    <div class="actions">
+      <button class="btn btn-go" id="againBtn" type="button">Play again</button>
+      <button class="btn btn-ghost" id="labBtn2" type="button">Hiding Lab</button>
+    </div>
+  </section>
+
+  <!-- Hiding Lab -->
+  <section id="screenLab" class="screen" hidden>
+    <div class="lab-head">
+      <div>
+        <p class="level-num">Hiding Lab</p>
+        <h2 class="level-title">How each secret is hidden</h2>
+      </div>
+      <button class="btn btn-ghost btn-small" id="labBack" type="button">Back</button>
+    </div>
+    <div class="lab">
+      <nav class="lab-nav" id="labNav" aria-label="Hiding methods"></nav>
+      <article class="lab-card" id="labCard"></article>
+    </div>
+  </section>
+
+  <!--
+    "Hide your own message" is switched off for now (developer decision).
+    The embedding helpers remain in stego.js; restore this section and the
+    hider code at the end of game.js to bring it back.
+
+  <section id="screenHider" class="screen" hidden>
+    ...
+  </section>
+  -->
+</main>
+
+
+<script src="stego.js"></script>
+<script src="lab.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
