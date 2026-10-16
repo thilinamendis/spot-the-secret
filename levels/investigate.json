@@ -1,0 +1,88 @@
+{
+ "1": {
+  "cover": {},
+  "stego": {}
+ },
+ "2": {
+  "cover": {},
+  "stego": {}
+ },
+ "3": {
+  "cover": {},
+  "stego": {}
+ },
+ "4": {
+  "cover": {},
+  "stego": {}
+ },
+ "5": {
+  "cover": {
+   "watermark": "\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7"
+  },
+  "stego": {
+   "watermark": "AUBURN"
+  }
+ },
+ "6": {
+  "cover": {
+   "jsteg": {
+    "valid": false,
+    "length": null,
+    "text": "\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7{~\u00b7g\u00b7\u00b7~\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7"
+   },
+   "calibration": 0.0361
+  },
+  "stego": {
+   "jsteg": {
+    "valid": true,
+    "length": 939,
+    "text": "Meet me at the library at 3pm. Bring the blue notebook. The password is OWL-42. Meet me at the library at 3pm. Bring the blue notebook. The password is OWL-42. \u2026"
+   },
+   "calibration": 0.1292
+  }
+ },
+ "7": {
+  "cover": {
+   "jsteg": {
+    "valid": false,
+    "length": null,
+    "text": "\u00b7}\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7l\u00b7\u00b7\u00b7}\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7z\u00b7\u00b7}\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7[\u00b7g\u00b7\u00b7:"
+   },
+   "calibration": 0.0531,
+   "nonzero_ac": 99180
+  },
+  "stego": {
+   "jsteg": {
+    "valid": false,
+    "length": null,
+    "text": "\u00b7w\u00b7\u00b7\u00b7\u00b7P\u00b7d\u00b7v\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7A\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7}\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7|\u00b7\u00b7\u00b7g_"
+   },
+   "calibration": 0.0756,
+   "nonzero_ac": 97655
+  }
+ },
+ "8": {
+  "cover": {
+   "nonzero_ac": 80348
+  },
+  "stego": {
+   "nonzero_ac": 80468
+  }
+ },
+ "9": {
+  "cover": {
+   "nonzero_ac": 60092
+  },
+  "stego": {
+   "nonzero_ac": 60150
+  }
+ },
+ "10": {
+  "cover": {
+   "nonzero_ac": 137992
+  },
+  "stego": {
+   "nonzero_ac": 138007
+  }
+ }
+}

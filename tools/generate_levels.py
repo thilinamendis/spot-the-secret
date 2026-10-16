@@ -138,7 +138,7 @@ def level3_lsb_sequential(x, bpc=0.12):
 
 
 def mulberry32(seed):
-    """Tiny PRNG that is reproduced bit-for-bit in game.js, so the browser can
+    """Tiny PRNG that is reproduced bit-for-bit in stego.js, so the browser can
     re-derive the secret positions from the key."""
     state = [seed & 0xFFFFFFFF]
     M = 0xFFFFFFFF

@@ -3,8 +3,9 @@
  * Developed by Thilina Mendis
  * Date: October 15, 2026
  *
- * lab.js: the Hiding Lab. One chapter per level, each a short step-by-step
- * walkthrough of how that hiding method works, with small visuals.
+ * lab.js: the Hiding Lab (lab.html). One chapter per level, each a short
+ * step-by-step walkthrough of how that hiding method works, with small
+ * visuals. lab.html?lab=N opens level N.
  */
 (function (root) {
   "use strict";
@@ -335,6 +336,68 @@
       case "wavelet": return visWavelet(ch.level, base);
       default: return visText(v);
     }
+  }
+
+  // ------------------------------------------------------------ page
+  const BASE = "levels/";
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lab = { ch: 0, step: 0 };
+  const $ = s => document.querySelector(s);
+  function el(tag, attrs = {}, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") n.className = v;
+      else if (k === "text") n.textContent = v;
+      else n.setAttribute(k, v);
+    }
+    kids.forEach(k => k != null && n.appendChild(typeof k === "string" ? document.createTextNode(k) : k));
+    return n;
+  }
+
+  function renderNav() {
+    const nav = $("#labNav"); nav.innerHTML = "";
+    CHAPTERS.forEach((c, i) => {
+      const b = el("button", { type: "button", class: "lab-item", "aria-current": String(i === lab.ch) },
+        el("span", { class: "lab-n", text: String(c.level) }),
+        el("span", { class: "lab-t" }, el("b", { text: c.name }), el("span", { text: c.method })));
+      b.addEventListener("click", () => { lab.ch = i; lab.step = 0; renderNav(); renderCard(); });
+      nav.appendChild(b);
+    });
+  }
+
+  function renderCard() {
+    const ch = CHAPTERS[lab.ch], st = ch.steps[lab.step];
+    const card = $("#labCard");
+    if (card._vis && card._vis._stop) card._vis._stop();
+    card.innerHTML = "";
+    const dots = el("div", { class: "lab-dots", "aria-hidden": "true" });
+    ch.steps.forEach((_, i) => dots.appendChild(el("span", { class: i === lab.step ? "on" : i < lab.step ? "done" : "" })));
+    const vis = renderVisual(ch, st, BASE, reduceMotion);
+    card._vis = vis;
+    const prev = el("button", { class: "btn btn-ghost btn-small", type: "button", text: "Previous step" });
+    const next = el("button", { class: "btn btn-go btn-small", type: "button",
+      text: lab.step + 1 < ch.steps.length ? "Next step" : lab.ch + 1 < CHAPTERS.length ? `Next method: ${CHAPTERS[lab.ch + 1].name}` : "Done" });
+    prev.disabled = lab.step === 0;
+    prev.addEventListener("click", () => { lab.step--; renderCard(); });
+    next.addEventListener("click", () => {
+      if (lab.step + 1 < ch.steps.length) lab.step++;
+      else if (lab.ch + 1 < CHAPTERS.length) { lab.ch++; lab.step = 0; renderNav(); }
+      else { location.href = "index.html"; return; }
+      renderCard();
+    });
+    card.append(
+      el("p", { class: "lab-kicker", text: `Level ${ch.level}: ${ch.method}` }),
+      dots,
+      el("h3", { class: "lab-step-title", text: `Step ${lab.step + 1}. ${st.t}` }),
+      el("p", { class: "lab-step-text", text: st.d }),
+      el("div", { class: "lab-visual" }, vis),
+      el("div", { class: "actions lab-actions" }, prev, next));
+  }
+
+  if (document.getElementById("labCard")) {
+    const n = parseInt(new URLSearchParams(location.search).get("lab"), 10);
+    if (Number.isFinite(n)) lab.ch = Math.max(0, Math.min(CHAPTERS.length - 1, n - 1));
+    renderNav(); renderCard();
   }
 
   root.Lab = { CHAPTERS, renderVisual };

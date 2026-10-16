@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+  Spot the Secret: Hiding Lab
+  Developed by Thilina Mendis
+  Date: October 16, 2026
+
+  Step-by-step walkthroughs of each hiding method. lab.html?lab=N opens
+  level N (linked from the case reveal in index.html).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="author" content="Thilina Mendis">
+<title>Spot the Secret: Hiding Lab</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔬</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <section id="screenLab" class="screen">
+    <div class="lab-head">
+      <div>
+        <p class="level-num">Hiding Lab</p>
+        <h2 class="level-title">How each secret is hidden</h2>
+      </div>
+      <a class="btn btn-ghost btn-small" id="labBack" href="index.html">Back to the investigation</a>
+    </div>
+    <div class="lab">
+      <nav class="lab-nav" id="labNav" aria-label="Hiding methods"></nav>
+      <article class="lab-card" id="labCard"></article>
+    </div>
+  </section>
+</main>
+
+<script src="stego.js"></script>
+<script src="lab.js"></script>
+</body>
+</html>
