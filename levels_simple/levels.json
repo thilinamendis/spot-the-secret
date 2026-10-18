@@ -1,0 +1,112 @@
+[
+  {
+    "level": 1,
+    "title": "Warm-up",
+    "tool": "booster",
+    "colours": false,
+    "how": "The word SECRET was painted over the photo in white, at 15% strength.",
+    "plain": "It's like writing on a window with a nearly dry marker: faint, but there if you look closely.",
+    "source": "pic_103.jpg",
+    "pct_pixels_changed": 8.08,
+    "max_change": 38
+  },
+  {
+    "level": 2,
+    "title": "Fading ink",
+    "tool": "booster",
+    "colours": false,
+    "how": "The same white word SECRET, but fainter: only 10% strength.",
+    "plain": "The marker is running out, so the writing is even harder to see.",
+    "source": "pic_10.jpg",
+    "pct_pixels_changed": 8.06,
+    "max_change": 26
+  },
+  {
+    "level": 3,
+    "title": "Almost invisible",
+    "tool": "booster",
+    "colours": false,
+    "how": "The word SECRET at just 2% strength, too faint for most eyes.",
+    "plain": "The ink is so faint that you need the booster to make it stand out.",
+    "source": "pic_54.jpg",
+    "pct_pixels_changed": 6.73,
+    "max_change": 5
+  },
+  {
+    "level": 4,
+    "title": "Bit 3",
+    "tool": "xray",
+    "colours": false,
+    "how": "A black-and-white picture of the word HELLO was written into bit 3 of every colour number.",
+    "plain": "Every colour number was nudged by up to 8 out of 255. That's small, but the X-ray shows the word clearly.",
+    "source": "pic_128.jpg",
+    "pct_pixels_changed": 84.06,
+    "max_change": 8
+  },
+  {
+    "level": 5,
+    "title": "Bit 2",
+    "tool": "xray",
+    "colours": false,
+    "how": "A picture of the word SPY was written into bit 2 of every colour number.",
+    "plain": "Smaller nudges this time, up to 4 out of 255, so your eyes can't see them.",
+    "source": "pic_110.jpg",
+    "pct_pixels_changed": 87.13,
+    "max_change": 4
+  },
+  {
+    "level": 6,
+    "title": "Bit 1",
+    "tool": "xray",
+    "colours": false,
+    "how": "A picture of the word AGENT was written into bit 1 of every colour number.",
+    "plain": "Each colour changed by 2 at most. Only a look at that one bit gives it away.",
+    "source": "pic_164.jpg",
+    "pct_pixels_changed": 87.75,
+    "max_change": 2
+  },
+  {
+    "level": 7,
+    "title": "The last bit",
+    "tool": "xray",
+    "colours": false,
+    "how": "A picture of the word FOUND ME was written into the last bit (bit 0) of every colour number.",
+    "plain": "Like changing every price in a shop by one cent: nobody notices, but look only at the cents and a word appears.",
+    "source": "pic_152.jpg",
+    "pct_pixels_changed": 63.69,
+    "max_change": 1
+  },
+  {
+    "level": 8,
+    "title": "Only in blue",
+    "tool": "xray",
+    "colours": true,
+    "how": "A picture of the words CODE 42 was written into the last bit of the blue numbers only.",
+    "plain": "The secret is only in the blue paint, so you have to check the right colour.",
+    "source": "pic_29.jpg",
+    "pct_pixels_changed": 49.86,
+    "max_change": 1
+  },
+  {
+    "level": 9,
+    "title": "Photo inside a photo",
+    "tool": "xray",
+    "colours": false,
+    "how": "A whole second photo, of a hiker, was hidden in the last two bits of every colour number.",
+    "plain": "The rough outline of another photo is tucked into the tiniest part of each pixel, like a ghost underneath.",
+    "source": "pic_211.jpg",
+    "pct_pixels_changed": 98.42,
+    "max_change": 3
+  },
+  {
+    "level": 10,
+    "title": "Postage stamp",
+    "tool": "xray",
+    "colours": true,
+    "how": "A tiny smiley picture was written into the last bit of the green numbers, in one busy corner.",
+    "plain": "Like a stamp dropped in a messy room: the right tool shows it, but you still have to look everywhere.",
+    "source": "pic_15.jpg",
+    "pct_pixels_changed": 1.18,
+    "max_change": 1
+  }
+]

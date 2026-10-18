@@ -382,7 +382,7 @@
     next.addEventListener("click", () => {
       if (lab.step + 1 < ch.steps.length) lab.step++;
       else if (lab.ch + 1 < CHAPTERS.length) { lab.ch++; lab.step = 0; renderNav(); }
-      else { location.href = "index.html"; return; }
+      else { location.href = "investigate.html"; return; }
       renderCard();
     });
     card.append(

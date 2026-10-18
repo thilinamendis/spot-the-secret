@@ -1,11 +1,12 @@
 <!doctype html>
 <!--
-  Spot the Secret: steganography investigation game
+  Spot the Secret: steganography game for the classroom
   Developed by Thilina Mendis
-  Date: October 16, 2026
+  Date: October 17, 2026
 
-  Students get forensic tools that work on both photos the same
-  way, gather evidence, and only then give their verdict.
+  Ten levels, two photos each. One photo hides a secret; a tool (Contrast
+  Booster or X-ray) works on both photos at once to help find it.
+  Level assets come from tools/generate_simple.py (levels_simple/).
 -->
 <html lang="en">
 <head>
@@ -14,50 +15,25 @@
 <meta name="color-scheme" content="dark">
 <meta name="author" content="Thilina Mendis">
 <title>Spot the Secret</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔬</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="investigate.css">
+<link rel="stylesheet" href="simple.css">
 </head>
 <body>
-<header class="hud" id="hud" hidden>
-  <button class="hud-logo" id="homeBtn" type="button" aria-label="Back to the title screen">Spot the Secret <span class="hud-mode">Investigation</span></button>
-  <ol class="pips" id="pips" aria-label="Case progress"></ol>
+<header class="hud" id="hud">
+  <span class="hud-logo">Spot the Secret</span>
+  <ol class="pips" id="pips" aria-label="Level progress"></ol>
   <div class="hud-stats">
     <div class="stat"><span class="stat-k">Score</span><span class="stat-v" id="hudScore">0</span></div>
   </div>
 </header>
 
 <main>
-  <!-- Title -->
-  <section id="screenTitle" class="screen">
-    <div class="title-wrap">
-      <div class="title-text">
-        <p class="kicker">Investigation mode</p>
-        <h1 class="logo">Spot the Secret</h1>
-        <p class="tagline">Your eyes can't see the hidden data, so don't guess. Run forensic tools on both photos, collect the evidence, then give your verdict.</p>
-        <ol class="howto">
-          <li><b>Read the case notes.</b> Each case tells you what the suspect may have used.</li>
-          <li><b>Examine each photo.</b> Click a photo, run the tools on it, then switch and compare.</li>
-          <li><b>Give your verdict.</b> Pick the photo the evidence points to.</li>
-        </ol>
-        <div class="actions">
-          <button class="btn btn-go" id="startBtn" type="button">Start investigating</button>
-          <a class="btn btn-ghost" href="lab.html?lab=1">Hiding Lab</a>
-        </div>
-        <p class="status" id="loadStatus" role="status"></p>
-      </div>
-      <div class="title-art" aria-hidden="true">
-        <div class="art-card"><img src="levels/level_02/lsb_stego.png" alt=""><span>Evidence</span></div>
-        <div class="art-card"><img src="levels/level_09/cover.jpg" alt=""><span>Photo</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Case -->
-  <section id="screenPlay" class="screen" hidden>
+  <!-- Play -->
+  <section id="screenPlay" class="screen">
     <div class="level-bar">
       <div>
         <p class="level-num" id="levelNum"></p>
@@ -65,51 +41,38 @@
       </div>
       <div class="difficulty" id="difficulty" aria-label="Difficulty"></div>
     </div>
+    <p class="prompt" id="prompt">One of these photos hides a secret. Use the tool to find it.</p>
 
-    <div class="bench">
-      <div class="bench-left">
-        <div class="picker" role="group" aria-label="Choose the photo to examine">
-          <button class="pp" data-side="A" type="button" aria-pressed="true">
-            <canvas class="pp-img" width="768" height="512"></canvas>
-            <span class="pp-label"><span class="pp-tag">A</span> Photo A</span>
-            <span class="pp-state">Examining</span>
-            <span class="stamp" aria-hidden="true"></span>
-          </button>
-          <button class="pp" data-side="B" type="button" aria-pressed="false">
-            <canvas class="pp-img" width="768" height="512"></canvas>
-            <span class="pp-label"><span class="pp-tag">B</span> Photo B</span>
-            <span class="pp-state">Examining</span>
-            <span class="stamp" aria-hidden="true"></span>
-          </button>
-        </div>
-        <div class="view-head">
-          <p class="view-title" id="viewTitle"></p>
-          <button class="btn btn-ghost btn-small" id="switchBtn" type="button">Switch photo</button>
-        </div>
-        <div class="view" id="view"></div>
-        <p class="view-hint">Press <kbd>A</kbd> or <kbd>B</kbd> to switch photos. The tool keeps its settings, so flip back and forth to compare.</p>
+    <!-- The tool: its controls work on both photos at once -->
+    <div class="toolbar" id="toolbar">
+      <div class="tool-name">
+        <b id="toolName"></b>
+        <span class="seg view-seg" role="radiogroup" aria-label="What the photos show">
+          <button type="button" role="radio" data-view="photo" aria-checked="true">Photos</button>
+          <button type="button" role="radio" data-view="tool" aria-checked="false" id="toolViewBtn"></button>
+        </span>
       </div>
-      <div class="bench-right">
-        <div class="case-note" id="caseNote"></div>
-        <p class="panel-h">Forensic toolkit</p>
-        <div class="toolbox" id="toolbox" role="tablist" aria-label="Tools"></div>
-        <div class="panel" id="panel" role="tabpanel"></div>
-        <div class="evidence">
-          <p class="panel-h">Evidence log</p>
-          <table class="ev-table">
-            <thead><tr><th>Tool</th><th>Photo A</th><th>Photo B</th></tr></thead>
-            <tbody id="evBody"><tr class="ev-empty"><td colspan="3">Run a reading tool on each photo and the results appear here.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
+      <div class="tool-controls" id="toolControls"></div>
+      <p class="tool-help" id="toolHelp"></p>
     </div>
 
-    <div class="verdict-bar" id="verdictBar">
-      <p class="verdict-q">Your verdict: which photo hides the secret?</p>
-      <div class="verdict-btns">
-        <button class="pick" data-pick="A" type="button"><span class="pick-key">A</span>Photo A</button>
-        <button class="pick" data-pick="B" type="button"><span class="pick-key">B</span>Photo B</button>
-      </div>
+    <div class="arena" id="arena">
+      <figure class="pane" data-side="A">
+        <div class="frame">
+          <canvas class="photo" width="768" height="512"></canvas>
+          <div class="stamp" aria-hidden="true"></div>
+          <span class="corner-tag">A</span>
+        </div>
+        <button class="pick" data-pick="A" type="button" disabled><span class="pick-key">A</span>A hides the secret</button>
+      </figure>
+      <figure class="pane" data-side="B">
+        <div class="frame">
+          <canvas class="photo" width="768" height="512"></canvas>
+          <div class="stamp" aria-hidden="true"></div>
+          <span class="corner-tag">B</span>
+        </div>
+        <button class="pick" data-pick="B" type="button" disabled><span class="pick-key">B</span>B hides the secret</button>
+      </figure>
     </div>
 
     <div id="reveal" hidden>
@@ -118,33 +81,29 @@
         <p class="result-sub" id="resultSub"></p>
       </div>
       <div class="brief">
-        <p class="brief-method" id="method"></p>
-        <p class="brief-text" id="evidence"></p>
-        <p class="brief-text" id="explain"></p>
-        <p class="brief-simple" id="simple"></p>
-        <a class="btn btn-ghost btn-small" id="toLab" href="lab.html?lab=1">See how it's done, step by step</a>
-      </div>
-      <div class="actions end">
-        <button class="btn btn-go" id="nextBtn" type="button">Next case</button>
+        <p class="brief-text" id="how"></p>
+        <p class="brief-simple" id="plain"></p>
+        <div class="actions">
+          <button class="btn btn-go" id="nextBtn" type="button">Next level</button>
+        </div>
       </div>
     </div>
+    <p class="status" id="loadStatus" role="status"></p>
   </section>
 
   <!-- End -->
   <section id="screenEnd" class="screen" hidden>
-    <p class="level-num">Investigation complete</p>
+    <p class="level-num">All 10 levels done</p>
     <h2 class="end-title" id="endTitle"></h2>
     <p class="rank" id="endRank"></p>
     <ol class="result-row" id="resultRow"></ol>
-    <p class="brief-text" id="endText"></p>
     <div class="actions">
-      <button class="btn btn-go" id="againBtn" type="button">Investigate again</button>
-      <a class="btn btn-ghost" href="lab.html">Hiding Lab</a>
+      <button class="btn btn-go" id="againBtn" type="button">Play again</button>
     </div>
   </section>
 </main>
 
 <script src="stego.js"></script>
-<script src="investigate.js"></script>
+<script src="simple.js"></script>
 </body>
 </html>

@@ -629,7 +629,7 @@
     state.inGame = false;
     showScreen("screenTitle");
     $("#loadStatus").textContent = location.protocol === "file:"
-      ? "Open this page through a web server (for example: python -m http.server 8000, then http://localhost:8000)."
+      ? "Open this page through a web server (for example: python -m http.server 8000, then http://localhost:8000/investigate.html)."
       : `Something went wrong while loading: ${e.message}`;
   }
 
