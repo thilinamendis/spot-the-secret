@@ -10,8 +10,12 @@ Two games share this folder:
   level). One tool works on both photos at once: the **Contrast Booster**
   (levels 1-3, faint white text) or the **X-ray**, which shows one bit of
   each colour number (levels 4-10, pictures hidden in the small bits). After
-  each pick: correct or not, which photo it was, how it was hidden, and an
-  "In plain words" sentence. 10 points per level.
+  each pick a popup shows correct or not, the points, which photo it was, how
+  it was hidden, and an "In plain words" sentence; the clock is paused while
+  the popup is open. 10 points per level. A landing page explains the game;
+  "Play now" starts it and a 5-minute clock for all 10 levels (`GAME_TIME` in
+  simple.js). When the clock runs out the game ends and shows the score,
+  stars and an agent rank, with unplayed levels marked "Not reached".
 - **Investigation mode** (`investigate.html`, not linked from the simple game):
   the advanced version, with case notes, ten forensic tools, an evidence log
   and JPEG methods. After each verdict, the Hiding Lab (`lab.html`) walks
@@ -32,6 +36,7 @@ Deploy from a branch > `main` / `(root)`.
 ## Files
 
     index.html, simple.js/.css        the simple game
+    fx.js                             its animations (confetti, flying points, ...)
     investigate.html/.js/.css         Investigation mode
     lab.html, lab.js                  Hiding Lab (lab.html?lab=N opens level N)
     stego.js, style.css               shared helpers and styles

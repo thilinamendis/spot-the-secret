@@ -4,7 +4,7 @@
   Developed by Thilina Mendis
   Date: October 17, 2026
 
-  Ten levels, two photos each. One photo hides a secret; a tool (Contrast
+  Ten levels, two photos each, a 5-minute clock. One photo hides a secret; a tool (Contrast
   Booster or X-ray) works on both photos at once to help find it.
   Level assets come from tools/generate_simple.py (levels_simple/).
 -->
@@ -23,17 +23,51 @@
 <link rel="stylesheet" href="simple.css">
 </head>
 <body>
-<header class="hud" id="hud">
+<!-- Background for every screen: slow glows and drifting zeros and ones -->
+<div class="bg-fx" aria-hidden="true">
+  <span class="orb a"></span><span class="orb b"></span><span class="orb c"></span>
+  <div class="bits-bg" id="bitsBg"></div>
+</div>
+<header class="hud" id="hud" hidden>
   <span class="hud-logo">Spot the Secret</span>
   <ol class="pips" id="pips" aria-label="Level progress"></ol>
   <div class="hud-stats">
-    <div class="stat"><span class="stat-k">Score</span><span class="stat-v" id="hudScore">0</span></div>
+    <div class="stat" id="timeStat"><span class="stat-k" id="timeLabel">Time left</span><span class="stat-v" id="hudTime" role="timer" aria-live="off">5:00</span></div>
+    <div class="stat" id="streakStat"><span class="stat-k">Streak</span><span class="stat-v" id="hudStreak">0</span></div>
+    <div class="stat" id="scoreStat"><span class="stat-k">Score</span><span class="stat-v" id="hudScore">0</span></div>
   </div>
+  <div class="timebar" aria-hidden="true"><span id="timeFill"></span></div>
 </header>
 
 <main>
+  <!-- Landing page -->
+  <section id="screenTitle" class="screen">
+    <div class="title-wrap">
+      <div class="title-text">
+        <p class="kicker">A steganography game</p>
+        <h1 class="logo" id="logo">Spot the Secret</h1>
+        <p class="tagline">People can hide secret messages inside photos. Your eyes can't see them, but the right tool can. Can you find all 10?</p>
+        <ol class="howto">
+          <li><b>Look.</b> Each level shows two photos, A and B. One of them hides a secret.</li>
+          <li><b>Use the tool.</b> The Contrast Booster or the X-ray changes both photos at once. Move its slider and compare.</li>
+          <li><b>Pick.</b> Click "A hides the secret" or "B hides the secret". Each correct answer is worth 10 points.</li>
+          <li><b>Beat the clock.</b> You have 5 minutes for all 10 levels. When time runs out, the game ends.</li>
+        </ol>
+        <div class="actions">
+          <button class="btn btn-go btn-play" id="playBtn" type="button" disabled>Play now <span aria-hidden="true">▶</span></button>
+        </div>
+        <p class="status" id="titleStatus" role="status"></p>
+      </div>
+      <div class="title-art" aria-hidden="true">
+        <div class="art-card"><img src="levels_simple/level_07/cover.png" alt=""><span>A</span></div>
+        <div class="art-card"><img src="levels_simple/level_07/stego.png" alt=""><span>B</span></div>
+        <div class="art-q">Which one hides a secret?</div>
+      </div>
+    </div>
+  </section>
+
   <!-- Play -->
-  <section id="screenPlay" class="screen">
+  <section id="screenPlay" class="screen" hidden>
     <div class="level-bar">
       <div>
         <p class="level-num" id="levelNum"></p>
@@ -52,6 +86,7 @@
           <button type="button" role="radio" data-view="tool" aria-checked="false" id="toolViewBtn"></button>
         </span>
       </div>
+      <div class="try-hint" id="tryHint" hidden aria-hidden="true">👈 Try the tool!</div>
       <div class="tool-controls" id="toolControls"></div>
       <p class="tool-help" id="toolHelp"></p>
     </div>
@@ -60,6 +95,7 @@
       <figure class="pane" data-side="A">
         <div class="frame">
           <canvas class="photo" width="768" height="512"></canvas>
+          <div class="scan" aria-hidden="true"></div>
           <div class="stamp" aria-hidden="true"></div>
           <span class="corner-tag">A</span>
         </div>
@@ -68,6 +104,7 @@
       <figure class="pane" data-side="B">
         <div class="frame">
           <canvas class="photo" width="768" height="512"></canvas>
+          <div class="scan" aria-hidden="true"></div>
           <div class="stamp" aria-hidden="true"></div>
           <span class="corner-tag">B</span>
         </div>
@@ -75,35 +112,69 @@
       </figure>
     </div>
 
-    <div id="reveal" hidden>
-      <div class="result" id="result" role="status" aria-live="polite">
-        <p class="result-head" id="resultHead"></p>
-        <p class="result-sub" id="resultSub"></p>
-      </div>
-      <div class="brief">
-        <p class="brief-text" id="how"></p>
-        <p class="brief-simple" id="plain"></p>
-        <div class="actions">
-          <button class="btn btn-go" id="nextBtn" type="button">Next level</button>
-        </div>
-      </div>
-    </div>
     <p class="status" id="loadStatus" role="status"></p>
   </section>
 
+  <!-- Result popup: the clock is paused while it is open -->
+  <div class="popup-back" id="popup" hidden>
+    <div class="popup" role="dialog" aria-modal="true" aria-labelledby="popHead">
+      <div class="pop-badge" id="popBadge" aria-hidden="true"></div>
+      <p class="pop-points" id="popPoints" aria-hidden="true"></p>
+      <h2 class="pop-head" id="popHead"></h2>
+      <p class="pop-sub" id="popSub"></p>
+      <p class="pop-streak" id="popStreak" hidden></p>
+      <div class="pop-how">
+        <p class="pop-label">How it was hidden</p>
+        <p id="popHow"></p>
+      </div>
+      <p class="brief-simple" id="popPlain"></p>
+      <div class="pop-foot">
+        <span class="pop-paused"><span aria-hidden="true">⏸</span> Clock paused</span>
+        <button class="btn btn-go" id="nextBtn" type="button">Next level</button>
+      </div>
+    </div>
+  </div>
+
   <!-- End -->
   <section id="screenEnd" class="screen" hidden>
-    <p class="level-num">All 10 levels done</p>
-    <h2 class="end-title" id="endTitle"></h2>
-    <p class="rank" id="endRank"></p>
+    <div class="end-top">
+      <div class="end-main">
+        <p class="level-num" id="endKicker"></p>
+        <div class="stars" id="stars" aria-hidden="true"><span>★</span><span>★</span><span>★</span></div>
+        <p class="agent-rank" id="agentRank"></p>
+        <h2 class="end-title" id="endTitle"></h2>
+        <p class="rank" id="endRank"></p>
+        <div class="actions">
+          <button class="btn btn-go btn-play" id="againBtn" type="button">Play again <span aria-hidden="true">↻</span></button>
+        </div>
+      </div>
+      <aside class="agent-card" aria-label="Your agent card">
+        <div class="ac-head"><span>Agent card</span><span id="agentId"></span></div>
+        <div class="ac-shield"><b id="acFound">0</b><span>of 10</span></div>
+        <p class="ac-rank" id="acRank"></p>
+        <dl class="ac-stats">
+          <div><dt>Points</dt><dd id="acPoints">0</dd></div>
+          <div><dt>Secrets found</dt><dd id="acSecrets">0</dd></div>
+          <div><dt>Accuracy</dt><dd id="acAccuracy">0%</dd></div>
+          <div><dt id="acTimeLabel">Time left</dt><dd id="acTime">0:00</dd></div>
+        </dl>
+      </aside>
+    </div>
     <ol class="result-row" id="resultRow"></ol>
-    <div class="actions">
-      <button class="btn btn-go" id="againBtn" type="button">Play again</button>
+    <h3 class="ach-head">Achievements</h3>
+    <ul class="achievements" id="achievements"></ul>
+    <div class="eng-note">
+      <b>This is engineering.</b>
+      <p>Hiding and finding secret data is real work for computer and cybersecurity engineers. The Booster and the X-ray are simple versions of tools they build to protect photos, messages and people.</p>
     </div>
   </section>
 </main>
 
+<div class="level-banner" id="levelBanner" aria-hidden="true"><span class="lb-num" id="lbNum"></span><span class="lb-title" id="lbTitle"></span></div>
+<canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
 <script src="stego.js"></script>
+<script src="fx.js"></script>
 <script src="simple.js"></script>
 </body>
 </html>
