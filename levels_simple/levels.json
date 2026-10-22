@@ -1,7 +1,7 @@
 [
   {
     "level": 1,
-    "title": "Warm-up",
+    "title": "Lazy Afternoon",
     "tool": "booster",
     "colours": false,
     "how": "The word SECRET was painted over the photo in white, at 15% strength.",
@@ -12,7 +12,7 @@
   },
   {
     "level": 2,
-    "title": "Fading ink",
+    "title": "Forest Lookout",
     "tool": "booster",
     "colours": false,
     "how": "The same white word SECRET, but fainter: only 10% strength.",
@@ -23,7 +23,7 @@
   },
   {
     "level": 3,
-    "title": "Almost invisible",
+    "title": "Cloud Watch",
     "tool": "booster",
     "colours": false,
     "how": "The word SECRET at just 2% strength, too faint for most eyes.",
@@ -34,7 +34,7 @@
   },
   {
     "level": 4,
-    "title": "Bit 3",
+    "title": "Mountain Lake",
     "tool": "xray",
     "colours": false,
     "how": "A black-and-white picture of the word HELLO was written into bit 3 of every colour number.",
@@ -45,7 +45,7 @@
   },
   {
     "level": 5,
-    "title": "Bit 2",
+    "title": "Golden Hour",
     "tool": "xray",
     "colours": false,
     "how": "A picture of the word SPY was written into bit 2 of every colour number.",
@@ -56,7 +56,7 @@
   },
   {
     "level": 6,
-    "title": "Bit 1",
+    "title": "Canal Town",
     "tool": "xray",
     "colours": false,
     "how": "A picture of the word AGENT was written into bit 1 of every colour number.",
@@ -67,7 +67,7 @@
   },
   {
     "level": 7,
-    "title": "The last bit",
+    "title": "Purple Petals",
     "tool": "xray",
     "colours": false,
     "how": "A picture of the word FOUND ME was written into the last bit (bit 0) of every colour number.",
@@ -78,7 +78,7 @@
   },
   {
     "level": 8,
-    "title": "Only in blue",
+    "title": "Snowy Peaks",
     "tool": "xray",
     "colours": true,
     "how": "A picture of the words CODE 42 was written into the last bit of the blue numbers only.",
@@ -89,7 +89,7 @@
   },
   {
     "level": 9,
-    "title": "Photo inside a photo",
+    "title": "All Aboard",
     "tool": "xray",
     "colours": false,
     "how": "A whole second photo, of a hiker, was hidden in the last two bits of every colour number.",
@@ -100,7 +100,7 @@
   },
   {
     "level": 10,
-    "title": "Postage stamp",
+    "title": "Rocky Stream",
     "tool": "xray",
     "colours": true,
     "how": "A tiny smiley picture was written into the last bit of the green numbers, in one busy corner.",

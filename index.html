@@ -4,7 +4,7 @@
   Developed by Thilina Mendis
   Date: October 17, 2026
 
-  Ten levels, two photos each, a 5-minute clock. One photo hides a secret; a tool (Contrast
+  Ten levels, two photos each, 1 minute per photo; faster finds score more. One photo hides a secret; a tool (Contrast
   Booster or X-ray) works on both photos at once to help find it.
   Level assets come from tools/generate_simple.py (levels_simple/).
 -->
@@ -18,7 +18,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@500;700&family=Fredoka:wght@500;600&family=Lilita+One&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="simple.css">
 </head>
@@ -28,11 +28,15 @@
   <span class="orb a"></span><span class="orb b"></span><span class="orb c"></span>
   <div class="bits-bg" id="bitsBg"></div>
 </div>
+<div class="presenter">Presented by <b>C-FORCE Laboratory</b>
+  <button class="admin-btn" id="adminBtn" type="button" title="Admin: reset the leaderboard">🔒 Admin</button>
+</div>
 <header class="hud" id="hud" hidden>
-  <span class="hud-logo">Spot the Secret</span>
+  <span class="hud-logo">Spot the Secret <span class="hud-agent" id="hudAgent"></span></span>
   <ol class="pips" id="pips" aria-label="Level progress"></ol>
   <div class="hud-stats">
-    <div class="stat" id="timeStat"><span class="stat-k" id="timeLabel">Time left</span><span class="stat-v" id="hudTime" role="timer" aria-live="off">5:00</span></div>
+    <div class="stat" id="timeStat"><span class="stat-k" id="timeLabel">Time left</span><span class="stat-v" id="hudTime" role="timer" aria-live="off">1:00</span></div>
+    <div class="stat" id="worthStat"><span class="stat-k">Worth</span><span class="stat-v" id="hudWorth">10 pts</span></div>
     <div class="stat" id="streakStat"><span class="stat-k">Streak</span><span class="stat-v" id="hudStreak">0</span></div>
     <div class="stat" id="scoreStat"><span class="stat-k">Score</span><span class="stat-v" id="hudScore">0</span></div>
   </div>
@@ -47,21 +51,37 @@
         <p class="kicker">A steganography game</p>
         <h1 class="logo" id="logo">Spot the Secret</h1>
         <p class="tagline">People can hide secret messages inside photos. Your eyes can't see them, but the right tool can. Can you find all 10?</p>
-        <ol class="howto">
-          <li><b>Look.</b> Each level shows two photos, A and B. One of them hides a secret.</li>
-          <li><b>Use the tool.</b> The Contrast Booster or the X-ray changes both photos at once. Move its slider and compare.</li>
-          <li><b>Pick.</b> Click "A hides the secret" or "B hides the secret". Each correct answer is worth 10 points.</li>
-          <li><b>Beat the clock.</b> You have 5 minutes for all 10 levels. When time runs out, the game ends.</li>
+        <ol class="howto steps">
+          <li><span class="step-icon" aria-hidden="true">🔍</span><span class="step-body"><b>Look</b><span>Each level shows two photos, A and B. One of them hides a secret.</span></span></li>
+          <li><span class="step-icon" aria-hidden="true">🛠️</span><span class="step-body"><b>Use the tool</b><span>The Contrast Booster or the X-ray changes both photos at once. Move its slider and compare.</span></span></li>
+          <li><span class="step-icon" aria-hidden="true">⚡</span><span class="step-body"><b>Pick fast</b><span>Click "A hides the secret" or "B hides the secret". Find it within 10 seconds for 10 points; the longer you take, the fewer points you get.</span></span></li>
+          <li><span class="step-icon" aria-hidden="true">⏱️</span><span class="step-body"><b>Beat the clock</b><span>Each photo has 1 minute. Get answers right in a row for a streak bonus at the end. Can you top the class?</span></span></li>
         </ol>
-        <div class="actions">
-          <button class="btn btn-go btn-play" id="playBtn" type="button" disabled>Play now <span aria-hidden="true">▶</span></button>
-        </div>
+        <form class="name-row" id="nameForm" autocomplete="off">
+          <label class="name-field">
+            <span class="name-label">Your agent name</span>
+            <span class="name-box">
+              <input id="agentName" name="agent" maxlength="16" placeholder="e.g. Shadow Fox 42" spellcheck="false" aria-describedby="nameNote">
+              <button class="dice" id="diceBtn" type="button" title="Pick a random agent name" aria-label="Pick a random agent name">🎲</button>
+            </span>
+          </label>
+          <div class="actions">
+            <button class="btn btn-go btn-play" id="playBtn" type="submit" disabled>Play now <span aria-hidden="true">▶</span></button>
+          </div>
+        </form>
+        <p class="name-note" id="nameNote">Use a nickname, not your real name. It appears on the leaderboard.</p>
         <p class="status" id="titleStatus" role="status"></p>
       </div>
-      <div class="title-art" aria-hidden="true">
-        <div class="art-card"><img src="levels_simple/level_07/cover.png" alt=""><span>A</span></div>
-        <div class="art-card"><img src="levels_simple/level_07/stego.png" alt=""><span>B</span></div>
-        <div class="art-q">Which one hides a secret?</div>
+      <div class="title-side">
+        <div class="art-pair" aria-hidden="true">
+          <div class="art-card"><img src="levels_simple/level_07/cover.png" alt=""><span>A</span></div>
+          <div class="art-card"><img src="levels_simple/level_07/stego.png" alt=""><span>B</span></div>
+          <div class="art-q">Which one hides a secret?</div>
+        </div>
+        <section class="board-card" aria-labelledby="boardHeadLanding">
+          <div class="bc-head"><h2 id="boardHeadLanding">🏆 Top agents</h2><span class="bc-mode" data-board-mode></span></div>
+          <ol class="board-list" id="boardLanding" aria-live="polite"></ol>
+        </section>
       </div>
     </div>
   </section>
@@ -143,7 +163,9 @@
         <div class="stars" id="stars" aria-hidden="true"><span>★</span><span>★</span><span>★</span></div>
         <p class="agent-rank" id="agentRank"></p>
         <h2 class="end-title" id="endTitle"></h2>
+        <p class="end-break" id="endBreak"></p>
         <p class="rank" id="endRank"></p>
+        <p class="placed" id="placed" role="status"></p>
         <div class="actions">
           <button class="btn btn-go btn-play" id="againBtn" type="button">Play again <span aria-hidden="true">↻</span></button>
         </div>
@@ -155,24 +177,35 @@
         <dl class="ac-stats">
           <div><dt>Points</dt><dd id="acPoints">0</dd></div>
           <div><dt>Secrets found</dt><dd id="acSecrets">0</dd></div>
-          <div><dt>Accuracy</dt><dd id="acAccuracy">0%</dd></div>
-          <div><dt id="acTimeLabel">Time left</dt><dd id="acTime">0:00</dd></div>
+          <div><dt>Average find</dt><dd id="acAvg">–</dd></div>
+          <div><dt>Best streak</dt><dd id="acStreak">0</dd></div>
         </dl>
       </aside>
     </div>
     <ol class="result-row" id="resultRow"></ol>
-    <h3 class="ach-head">Achievements</h3>
-    <ul class="achievements" id="achievements"></ul>
-    <div class="eng-note">
-      <b>This is engineering.</b>
-      <p>Hiding and finding secret data is real work for computer and cybersecurity engineers. The Booster and the X-ray are simple versions of tools they build to protect photos, messages and people.</p>
+    <div class="end-bottom">
+      <div>
+        <h3 class="ach-head">Achievements</h3>
+        <ul class="achievements" id="achievements"></ul>
+      </div>
+      <section class="board-card" aria-labelledby="boardHeadEnd">
+        <div class="bc-head"><h2 id="boardHeadEnd">🏆 Leaderboard</h2><span class="bc-mode" data-board-mode></span></div>
+        <ol class="board-list" id="boardEnd" aria-live="polite"></ol>
+      </section>
     </div>
   </section>
 </main>
 
 <div class="level-banner" id="levelBanner" aria-hidden="true"><span class="lb-num" id="lbNum"></span><span class="lb-title" id="lbTitle"></span></div>
+<!-- Admin panel (admin.js): opened by the Admin button, or by clicking "Top agents" 5 times -->
+<div class="popup-back admin-back" id="adminPop" hidden>
+  <div class="popup admin-pop" role="dialog" aria-modal="true" aria-labelledby="adminHead"><div id="adminBody"></div></div>
+</div>
 <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
 
+<script src="firebase-config.js"></script>
+<script src="leaderboard.js"></script>
+<script src="admin.js"></script>
 <script src="stego.js"></script>
 <script src="fx.js"></script>
 <script src="simple.js"></script>
