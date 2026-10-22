@@ -8,8 +8,8 @@ Generates the 10 levels of the simple game (index.html).
 For every level it writes, into out/level_XX/:
   cover.png   the original photo
   stego.png   the same photo with the secret hidden in it
-and a top-level levels.json with the title, tool and the two reveal
-sentences for each level.
+a top-level levels.json with the title, tool and the two reveal sentences
+for each level, and out/demo/stego.png for the landing page's X-ray demo.
 
 "Writing a picture into bit k" means: for every pixel, set bit k of each
 chosen colour value to 1 where the secret picture is white and 0 where it is
@@ -45,12 +45,21 @@ def font(size):
     return ImageFont.load_default()
 
 
-def text_picture(text, size=150):
-    """Black-and-white picture (True = white) of the text, centred."""
+def text_mask(text, size=150, cx=0.5, cy=0.5, angle=0):
+    """Greyscale mask of the text, centred at (cx, cy) as fractions of the
+    photo, tilted by angle degrees (counter-clockwise)."""
     canvas = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(canvas).multiline_text((W // 2, H // 2), text, font=font(size), fill=255,
+    at = (int(W * cx), int(H * cy))
+    ImageDraw.Draw(canvas).multiline_text(at, text, font=font(size), fill=255,
                                           anchor="mm", align="center", spacing=12)
-    return np.asarray(canvas) > 127
+    if angle:
+        canvas = canvas.rotate(angle, resample=Image.BICUBIC, center=at)
+    return canvas
+
+
+def text_picture(text, size=150, cx=0.5, cy=0.5, angle=0):
+    """Black-and-white picture (True = white) of the text."""
+    return np.asarray(text_mask(text, size, cx, cy, angle)) > 127
 
 
 def stamp_picture(size=96):
@@ -85,13 +94,14 @@ def busiest_corner(x, size, margin=24):
 
 
 # ---------------------------------------------------------------- hiding methods
-def overlay(x, opacity, text="SECRET", size=150, cy=0.30):
+def overlay(x, opacity, text="SECRET", size=150, cx=0.5, cy=0.30, angle=0):
     """White text blended over the photo at the given opacity."""
     im = Image.fromarray(x).convert("RGBA")
-    layer = Image.new("RGBA", im.size, (0, 0, 0, 0))
-    ImageDraw.Draw(layer).text((W // 2, int(H * cy)), text, font=font(size),
-                               fill=(255, 255, 255, round(255 * opacity)), anchor="mm")
-    return np.asarray(Image.alpha_composite(im, layer).convert("RGB"))
+    alpha = np.asarray(text_mask(text, size, cx, cy, angle), dtype=float) / 255 * opacity
+    layer = np.zeros((H, W, 4), np.uint8)
+    layer[..., :3] = 255
+    layer[..., 3] = np.round(alpha * 255).astype(np.uint8)
+    return np.asarray(Image.alpha_composite(im, Image.fromarray(layer, "RGBA")).convert("RGB"))
 
 
 def second_photo(x, hidden):
@@ -145,20 +155,35 @@ LEVELS = {
          "Like a stamp dropped in a messy room: the right tool shows it, but you still have to look everywhere."),
 }
 HIDDEN_PHOTO = "pic_177.jpg"   # level 9's second photo
+OVERLAY3, L3_CX, L3_CY, L3_ANGLE = 0.02, 0.34, 0.17, -4  # level 3: faintest text, in open sky
 
 
 def make_stego(lv, x, src):
-    if lv == 1: return overlay(x, 0.15)
-    if lv == 2: return overlay(x, 0.10)
-    if lv == 3: return overlay(x, 0.02)
-    if lv == 4: return write_bit(x, text_picture("HELLO"), 3)
-    if lv == 5: return write_bit(x, text_picture("SPY", 200), 2)
-    if lv == 6: return write_bit(x, text_picture("AGENT"), 1)
-    if lv == 7: return write_bit(x, text_picture("FOUND\nME", 140), 0)
-    if lv == 8: return write_bit(x, text_picture("CODE\n42", 160), 0, channels=(BLUE,))
+    # each secret has its own place, size and tilt, so no two levels look alike
+    if lv == 1: return overlay(x, 0.15, size=118, cx=0.64, cy=0.22, angle=7)
+    if lv == 2: return overlay(x, 0.10, size=92, cx=0.30, cy=0.37, angle=-5)
+    if lv == 3: return overlay(x, OVERLAY3, size=104, cx=L3_CX, cy=L3_CY, angle=L3_ANGLE)
+    if lv == 4: return write_bit(x, text_picture("HELLO", 120, cx=0.30, cy=0.30, angle=-10), 3)
+    if lv == 5: return write_bit(x, text_picture("SPY", 170, cx=0.70, cy=0.68), 2)
+    if lv == 6: return write_bit(x, text_picture("AGENT", 128, cx=0.5, cy=0.5, angle=22), 1)
+    if lv == 7: return write_bit(x, text_picture("FOUND\nME", 104, cx=0.28, cy=0.62), 0)
+    if lv == 8: return write_bit(x, text_picture("CODE\n42", 116, cx=0.73, cy=0.33, angle=8), 0, channels=(BLUE,))
     if lv == 9: return second_photo(x, load_rgb(os.path.join(src, HIDDEN_PHOTO)))
     y, _ = small_stamp(x, GREEN)
     return y
+
+
+DEMO_PHOTO = "pic_28.jpg"   # landing-page demo; not used by any level, so it gives nothing away
+
+
+def make_demo(src, out):
+    """The landing page's X-ray demo: a photo with SECRET in the last bit of every colour."""
+    od = os.path.join(out, "demo")
+    os.makedirs(od, exist_ok=True)
+    x = load_rgb(os.path.join(src, DEMO_PHOTO))
+    y = write_bit(x, text_picture("SECRET", 170, cx=0.5, cy=0.52), 0)
+    Image.fromarray(np.ascontiguousarray(y)).save(os.path.join(od, "stego.png"))
+    print("demo   landing-page X-ray demo done")
 
 
 def main():
@@ -182,6 +207,7 @@ def main():
                          max_change=int(np.abs(y.astype(int) - x.astype(int)).max())))
         print(f"level {lv:2d}  {title:22s} max change {meta[-1]['max_change']}")
     json.dump(meta, open(os.path.join(a.out, "levels.json"), "w"), indent=2)
+    make_demo(a.src, a.out)
 
 
 if __name__ == "__main__":

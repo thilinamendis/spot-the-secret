@@ -7,8 +7,8 @@
     "how": "The word SECRET was painted over the photo in white, at 15% strength.",
     "plain": "It's like writing on a window with a nearly dry marker: faint, but there if you look closely.",
     "source": "pic_103.jpg",
-    "pct_pixels_changed": 8.08,
-    "max_change": 38
+    "pct_pixels_changed": 5.25,
+    "max_change": 24
   },
   {
     "level": 2,
@@ -18,7 +18,7 @@
     "how": "The same white word SECRET, but fainter: only 10% strength.",
     "plain": "The marker is running out, so the writing is even harder to see.",
     "source": "pic_10.jpg",
-    "pct_pixels_changed": 8.06,
+    "pct_pixels_changed": 3.22,
     "max_change": 26
   },
   {
@@ -29,7 +29,7 @@
     "how": "The word SECRET at just 2% strength, too faint for most eyes.",
     "plain": "The ink is so faint that you need the booster to make it stand out.",
     "source": "pic_54.jpg",
-    "pct_pixels_changed": 6.73,
+    "pct_pixels_changed": 3.74,
     "max_change": 5
   },
   {
@@ -40,7 +40,7 @@
     "how": "A black-and-white picture of the word HELLO was written into bit 3 of every colour number.",
     "plain": "Every colour number was nudged by up to 8 out of 255. That's small, but the X-ray shows the word clearly.",
     "source": "pic_128.jpg",
-    "pct_pixels_changed": 84.06,
+    "pct_pixels_changed": 83.95,
     "max_change": 8
   },
   {
@@ -51,7 +51,7 @@
     "how": "A picture of the word SPY was written into bit 2 of every colour number.",
     "plain": "Smaller nudges this time, up to 4 out of 255, so your eyes can't see them.",
     "source": "pic_110.jpg",
-    "pct_pixels_changed": 87.13,
+    "pct_pixels_changed": 87.18,
     "max_change": 4
   },
   {
@@ -62,7 +62,7 @@
     "how": "A picture of the word AGENT was written into bit 1 of every colour number.",
     "plain": "Each colour changed by 2 at most. Only a look at that one bit gives it away.",
     "source": "pic_164.jpg",
-    "pct_pixels_changed": 87.75,
+    "pct_pixels_changed": 87.76,
     "max_change": 2
   },
   {
@@ -73,7 +73,7 @@
     "how": "A picture of the word FOUND ME was written into the last bit (bit 0) of every colour number.",
     "plain": "Like changing every price in a shop by one cent: nobody notices, but look only at the cents and a word appears.",
     "source": "pic_152.jpg",
-    "pct_pixels_changed": 63.69,
+    "pct_pixels_changed": 62.6,
     "max_change": 1
   },
   {
@@ -84,7 +84,7 @@
     "how": "A picture of the words CODE 42 was written into the last bit of the blue numbers only.",
     "plain": "The secret is only in the blue paint, so you have to check the right colour.",
     "source": "pic_29.jpg",
-    "pct_pixels_changed": 49.86,
+    "pct_pixels_changed": 49.93,
     "max_change": 1
   },
   {

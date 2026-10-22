@@ -12,13 +12,19 @@ Two games share this folder:
   each colour number (levels 4-10, pictures hidden in the small bits). After
   each pick a popup shows correct or not, the points, which photo it was, how
   it was hidden, and an "In plain words" sentence.
+  The tool stays locked for the first 10 seconds of each level, so students
+  look with their own eyes first (`TOOL_LOCK` in simple.js).
   Each level has a 1-minute clock (paused while the popup is open). A find
   within 10 seconds earns 10 points, then 1 point less every 5 seconds (at
   least 1); out of time or a wrong pick earns 0. Every correct answer from
   the 2nd in a row onwards adds a +2 streak bonus, shown on the end screen
   with stars, an agent rank and achievements. The numbers are constants at
   the top of simple.js (`LEVEL_TIME`, `FULL_TIME`, `MAX_POINTS`, `STEP_TIME`,
-  `STREAK_BONUS`). Every screen shows "Presented by C-FORCE Laboratory".
+  `STREAK_BONUS`). Every screen shows "Presented by C-FORCE, Cyber Forensics,
+  Communication and Emerging Technologies Laboratory". Background music and
+  sound effects are generated in the browser (sound.js, no audio files). The
+  game opens muted (browsers block sound until a click); the Sound button in
+  the top strip turns it on.
 - **Investigation mode** (`investigate.html`, not linked from the simple game):
   the advanced version, with case notes, ten forensic tools, an evidence log
   and JPEG methods. After each verdict, the Hiding Lab (`lab.html`) walks
@@ -36,7 +42,8 @@ Then open http://localhost:8000 (simple game) or http://localhost:8000/investiga
 Players type an agent name (a nickname; the dice picks a random one) before
 "Play now", and their score is saved at the end. The landing page and end
 screen show the top 10, with the player's own row highlighted. Each name
-appears once, with its best score.
+appears once, with its best score. `leaderboard.html` is the full page: a
+podium, totals, every agent (or every game), search, and when each was played.
 
 **Admin reset**: click the small "Admin" button at the top right (hidden
 during a level), or click the "Top agents" heading 5 times quickly. The first
@@ -69,13 +76,16 @@ Deploy from a branch > `main` / `(root)`.
     index.html, simple.js/.css        the simple game
     fx.js                             its animations (confetti, flying points, ...)
     leaderboard.js                    names and the leaderboard (Firebase or this computer)
+    leaderboard.html, board-page.js   the full leaderboard page
+    sound.js                          background music and sound effects (Web Audio)
+    demo.js                           landing-page "how it works" X-ray animation
     admin.js                          hidden admin panel (PIN-protected leaderboard reset)
     firebase-config.js                your Firebase project settings (null = this computer only)
     firestore.rules                   security rules to paste into Firebase
     investigate.html/.js/.css         Investigation mode
     lab.html, lab.js                  Hiding Lab (lab.html?lab=N opens level N)
     stego.js, style.css               shared helpers and styles
-    levels_simple/                    simple game levels (levels.json, level_XX/)
+    levels_simple/                    simple game levels (levels.json, level_XX/, demo/)
     levels/                           Investigation mode levels, levels.json, investigate.json
     tools/generate_simple.py          regenerates levels_simple/
     tools/generate_levels.py          regenerates levels/

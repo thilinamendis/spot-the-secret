@@ -1,0 +1,86 @@
+<!doctype html>
+<!--
+  Spot the Secret: full leaderboard
+  Developed by Thilina Mendis
+  Date: October 22, 2026
+
+  Every agent on the board, with their details. Uses the same board as the
+  game: leaderboard.html?board=openday shows the "openday" board.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="author" content="Thilina Mendis">
+<title>Spot the Secret: Leaderboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Sans:wght@500;600;700&family=IBM+Plex+Mono:wght@500;700&family=Fredoka:wght@500;600&family=Lilita+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="simple.css">
+</head>
+<body data-screen="leaderboard">
+<div class="bg-fx" aria-hidden="true">
+  <span class="orb a"></span><span class="orb b"></span><span class="orb c"></span>
+  <div class="bits-bg" id="bitsBg"></div>
+</div>
+<div class="presenter">
+  <span class="pr-text"><span class="pr-by">Presented by</span> <b>C-FORCE</b> <span class="pr-full">Cyber Forensics, Communication and Emerging Technologies Laboratory</span></span>
+  <span class="pr-tools">
+    <button class="admin-btn" id="adminBtn" type="button" title="Admin: reset the leaderboard">🔒 Admin</button>
+  </span>
+</div>
+
+<main>
+  <section class="lb-page" aria-labelledby="lbTitle">
+    <div class="lb-head">
+      <div>
+        <p class="kicker">Spot the Secret</p>
+        <h1 class="lb-title" id="lbTitle">🏆 Leaderboard</h1>
+        <p class="lb-sub"><span id="lbBoard"></span> · <span class="bc-mode" data-board-mode></span></p>
+      </div>
+      <a class="btn btn-go btn-play" id="backLink" href="index.html">◀ Back to the game</a>
+    </div>
+
+    <dl class="lb-stats">
+      <div><dt>Agents</dt><dd id="stAgents">0</dd></div>
+      <div><dt>Games played</dt><dd id="stGames">0</dd></div>
+      <div><dt>Top score</dt><dd id="stTop">–</dd></div>
+      <div><dt>Average score</dt><dd id="stAvg">–</dd></div>
+    </dl>
+
+    <ol class="podium" id="podium" aria-label="Top three agents"></ol>
+
+    <div class="lb-controls">
+      <div class="seg" role="radiogroup" aria-label="Show" id="viewSeg">
+        <button type="button" role="radio" aria-checked="true" data-view="best">Best per agent</button>
+        <button type="button" role="radio" aria-checked="false" data-view="all">Every game</button>
+      </div>
+      <label class="lb-search"><span class="sr-only">Find an agent</span>
+        <input id="search" type="search" placeholder="🔍 Find an agent" autocomplete="off" spellcheck="false">
+      </label>
+    </div>
+
+    <div class="lb-table-wrap">
+      <table class="lb-table">
+        <thead><tr><th scope="col">#</th><th scope="col">Agent</th><th scope="col">Points</th><th scope="col">Secrets found</th><th scope="col">Average find</th><th scope="col">Best streak</th><th scope="col">Played</th></tr></thead>
+        <tbody id="lbBody"><tr><td colspan="7" class="lb-empty">Loading the leaderboard…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- Admin panel (admin.js) -->
+<div class="popup-back admin-back" id="adminPop" hidden>
+  <div class="popup admin-pop" role="dialog" aria-modal="true" aria-labelledby="adminHead"><div id="adminBody"></div></div>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="leaderboard.js"></script>
+<script src="admin.js"></script>
+<script src="fx.js"></script>
+<script src="board-page.js"></script>
+</body>
+</html>

@@ -46,7 +46,7 @@
   };
   const NAME_KEY = "spot-the-secret-name";   // remembers the agent name on this computer
   const BOARD_SHOW = 10;                     // rows shown on a leaderboard
-  const HINT_LEFT = 20 * 1000;   // "Try the tool!" shows in the last 20 seconds, if the tool is still untouched
+  const TOOL_LOCK = 10 * 1000;   // the tool unlocks 10 seconds into a level, so students look first
   const BANNER_TIME = 1100;  // the level clock starts once the level banner has gone
   // Unlocked on the end screen. found(levels) = all those levels were found.
   const ACHIEVEMENTS = [
@@ -64,11 +64,11 @@
   const TOOLS = {
     booster: {
       name: "Contrast Booster", view: "Booster",
-      help: "The booster makes tiny differences in brightness much bigger. Faint marks your eyes can't see start to stand out. Slide it up.",
+      help: "Makes tiny brightness differences much bigger, so faint marks stand out. Slide it up.",
     },
     xray: {
       name: "X-ray", view: "X-ray",
-      help: "Each colour is a number from 0 to 255 stored as 8 bits. The X-ray shows just one of those bits: white where it is 1, black where it is 0. Bit 7 is the biggest part of the number, bit 0 (the last bit) the smallest.",
+      help: "Each colour is a number from 0 to 255 stored as 8 bits. The X-ray shows one bit: white = 1, black = 0. Bit 7 is the biggest, bit 0 (the last bit) the smallest.",
     },
   };
 
@@ -189,6 +189,17 @@
     });
   }
 
+  function lockTool(locked) {
+    state.toolLocked = locked;
+    $("#toolbar").classList.toggle("locked", locked);
+    $("#toolControls").inert = locked;
+    $(".view-seg").inert = locked;
+    if (locked) { $("#lockSecs").textContent = String(TOOL_LOCK / 1000); return; }
+    FX.pulse($("#toolbar"), "unlocked");
+    if (!state.toolUsed) $("#tryHint").hidden = false;
+    if (window.Sound) Sound.play("unlock");
+  }
+
   function toolTouched() {
     state.toolUsed = true;
     $("#tryHint").hidden = true;
@@ -235,7 +246,8 @@
       box.append(el("div", { class: "controls" }, el("label", { text: "Bit" }), s.node, out));
       if (meta.colours) {
         box.append(el("div", { class: "controls colour" }, el("label", { text: "Colour" }),
-          segmented("Colour", [[0, "Red"], [1, "Green"], [2, "Blue"]], state.ch, v => { state.ch = v; changed(); })));
+          // a new colour starts again from bit 7, so each colour is scanned from the top
+          segmented("Colour", [[0, "Red"], [1, "Green"], [2, "Blue"]], state.ch, v => { state.ch = v; slider.value = 0; update(); changed(); })));
       }
     }
   }
@@ -266,6 +278,7 @@
   }
   function renderBoards() {
     renderBoard($("#boardLanding"));
+    requestAnimationFrame(fitDemo);
     renderBoard($("#boardEnd"));
     const label = state.boardMode === "online" ? "● Live" : state.boardMode === "error" ? "Offline" : "This computer";
     $$("[data-board-mode]").forEach(n => { n.textContent = label; n.dataset.mode = state.boardMode; });
@@ -284,11 +297,35 @@
       .finally(() => { state.saving = false; renderBoards(); });
   }
 
+  // Photos take whatever height is left, so both pick buttons are always on screen.
+  function fitPhotos() {
+    const arena = $("#arena"), pick = $(".pick");
+    if (!arena || $("#screenPlay").hidden) return;
+    const top = arena.getBoundingClientRect().top + scrollY;
+    const room = innerHeight - top - pick.offsetHeight - 12 /* gap */ - 14 /* frame */ - 10 /* margin */;
+    document.documentElement.style.setProperty("--photo-max", `${Math.max(160, Math.floor(room))}px`);
+  }
+
+  // Landing page: the demo picture gets most of the height the Top 10 leaves free.
+  const DEMO_SHARE = 0.8;
+  function fitDemo() {
+    const side = $(".title-side"), demo = $("#demoCard"), board = $(".title-side .board-card"), list = $("#boardLanding");
+    if (!side || $("#screenTitle").hidden || getComputedStyle(demo).display === "none") return;
+    const cs = getComputedStyle(side);
+    const inner = side.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.rowGap || cs.gap || 0);
+    const boardNeeds = board.offsetHeight - list.clientHeight + list.scrollHeight;
+    const frame = demo.offsetHeight - demo.querySelector("canvas").offsetHeight;   // the card's own padding
+    // use about 80% of the free space, so the picture doesn't crowd the column
+    const h = Math.max(130, Math.min(280, Math.floor((inner - boardNeeds - frame - 4) * DEMO_SHARE)));
+    document.documentElement.style.setProperty("--demo-h", `${h}px`);
+  }
+
   // ---------------------------------------------------------------- flow
   function show(id) {
     $$(".screen").forEach(s => s.hidden = s.id !== id);
     $("#hud").hidden = id === "screenTitle";
     document.body.dataset.screen = id;   // the Admin button hides during a level
+    if (id === "screenTitle") requestAnimationFrame(fitDemo);
     $("#hud").classList.toggle("over", id === "screenEnd");   // no level clock on the end screen
     closePopup();
     window.scrollTo({ top: 0 });
@@ -340,12 +377,17 @@
     if (worth !== state.lastWorth && state.lastWorth != null) FX.pulse($("#worthStat"), "drop");
     state.lastWorth = worth;
     showTime(left, worth, false);
-    if (!state.toolUsed && left <= HINT_LEFT && left > 0) $("#tryHint").hidden = false;
+    const sec = Math.ceil(left / 1000);
+    if (sec <= 5 && sec > 0 && sec !== state.lastTick) { state.lastTick = sec; Sound.play("tick"); }
+    if (state.toolLocked) {
+      if (t >= TOOL_LOCK) lockTool(false);
+      else $("#lockSecs").textContent = String(Math.ceil((TOOL_LOCK - t) / 1000));
+    }
     if (left === 0) timeUp();
   }
   function startClock() {
     stopClock();
-    state.started = Date.now(); state.lastWorth = null;
+    state.started = Date.now(); state.lastWorth = null; state.lastTick = null;
     tick();
     state.timer = setInterval(tick, 200);
   }
@@ -377,10 +419,12 @@
     // every level starts with plain photos and fresh tool settings
     state.view = "photo"; state.boost = 1; state.bit = 7; state.ch = 0; state.toolUsed = false;
     $("#tryHint").hidden = true;
+    lockTool(true);
     $$(".view-seg button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.view === "photo")));
     buildToolbar(meta);
     renderHUD();
     showTime(LEVEL_TIME, MAX_POINTS, true);
+    fitPhotos();
 
     let cur;
     try { cur = await loadLevel(i); } catch (e) { if (token === state.token) fail(e); return; }
@@ -436,6 +480,7 @@
     renderPips();
     renderStreak();
     if (state.streak >= 2) FX.pulse($("#streakStat"), "bump");
+    Sound.play(outcome === "found" ? "correct" : outcome === "timeout" ? "timeout" : "wrong");
     setTimeout(() => openPopup(outcome, m, before, pts, t), FX.reduce ? 0 : 650);
   }
 
@@ -536,6 +581,7 @@
     $("#acStreak").textContent = String(state.bestStreak);
     if (stars >= 2) setTimeout(() => FX.confetti(innerWidth / 2, innerHeight * 0.3, 160), 900);
     saveScore(total, found, avg);
+    setTimeout(() => Sound.play("fanfare"), FX.reduce ? 0 : 300);
     const g = { found: (...lv) => lv.every(l => r[l - 1] === true), count: found, bestStreak: state.bestStreak,
                 fastest: Math.min(Infinity, ...foundTimes) };
     $("#achievements").replaceChildren(...ACHIEVEMENTS.map((a, i) => {
@@ -585,11 +631,18 @@
     // admin panel: the Admin button (top right), or click "Top agents" 5 times quickly
     Admin.attach($("#boardHeadLanding"), { onReset: () => { state.myId = null; renderBoards(); } });
     $("#adminBtn").addEventListener("click", () => Admin.open());
+    Sound.attach($("#soundBtn"));
+    addEventListener("resize", fitPhotos);
+    addEventListener("resize", fitDemo);
+    if (document.fonts) document.fonts.ready.then(() => { fitPhotos(); fitDemo(); });
+    // the full leaderboard page keeps the same ?board=
+    $$("[data-board-link]").forEach(a => { a.href = `leaderboard.html${location.search}`; });
     document.body.dataset.screen = "screenTitle";
     FX.bitsBackground($("#bitsBg"), 56);
     FX.parallax(document.querySelector(".bg-fx"));
     $$(".frame").forEach(f => FX.tilt(f));
     FX.bounceLetters($("#logo"));
+    Demo.start($("#demoCard"), "levels_simple/demo/stego.png", () => !$("#screenTitle").hidden);
     try {
       state.levels = await loadJSON(`${BASE}levels.json`);
       loadLevel(0);                        // so level 1 is ready when they press Play now

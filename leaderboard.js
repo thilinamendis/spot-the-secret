@@ -116,8 +116,12 @@
   }
 
   // Calls back with the ordered rows now and whenever the board changes.
-  function subscribe(cb0) {
-    const cb = (rows, m) => { shown = bestPerName(rows); cb0(shown, m); };
+  // opts.all: every game instead of each agent's best (the full leaderboard page)
+  function subscribe(cb0, opts = {}) {
+    const cb = (rows, m) => {
+      if (opts.all) return cb0(order(rows.slice()), m);
+      shown = bestPerName(rows); cb0(shown, m);
+    };
     let stop = () => {}, dead = false;
     init().then(() => {
       if (dead) return;
